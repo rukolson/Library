@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import $ from "jquery"; // Include jQuery
 
 const API_URL = "https://localhost:7195/api/Book";
 
@@ -42,19 +43,17 @@ export class BookCategory extends Component {
   };
 
   refreshList() {
-    fetch(API_URL + "Category")
-      .then(response => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        return response.json();
-      })
-      .then(data => {
+    $.ajax({
+      url: API_URL + "Category",
+      method: "GET",
+      dataType: "json",
+      success: (data) => {
         this.setState({ categories: data, categoriesWithoutFilter: data });
-      })
-      .catch(error => {
-        console.error("There was a problem with the fetch operation:", error);
-      });
+      },
+      error: (error) => {
+        console.error("There was a problem with the AJAX operation:", error);
+      }
+    });
   }
 
   componentDidMount() {
@@ -82,74 +81,59 @@ export class BookCategory extends Component {
   }
 
   createClick() {
-    fetch(API_URL + "Category", {
+    $.ajax({
+      url: API_URL + "Category",
       method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+      contentType: "application/json",
+      data: JSON.stringify({
         CategoryName: this.state.CategoryName,
       }),
-    })
-      .then(res => res.json())
-      .then(
-        (result) => {
-          alert(result);
-          this.refreshList();
-        },
-        (error) => {
-          alert("Nie udało się stworzyć kategorii");
-          console.error("Create error:", error);
-        }
-      );
+      success: (result) => {
+        alert(result);
+        this.refreshList();
+      },
+      error: (error) => {
+        alert("Nie udało się stworzyć kategorii");
+        console.error("Create error:", error);
+      }
+    });
   }
 
   updateClick() {
-    fetch(API_URL + "Category", {
+    $.ajax({
+      url: API_URL + "Category",
       method: "PUT",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+      contentType: "application/json",
+      data: JSON.stringify({
         CategoryId: this.state.CategoryId,
         CategoryName: this.state.CategoryName,
       }),
-    })
-      .then(res => res.json())
-      .then(
-        (result) => {
-          alert(result);
-          this.refreshList();
-        },
-        (error) => {
-          alert("Nie udało się zaktualizować kategorii");
-          console.error("Update error:", error);
-        }
-      );
+      success: (result) => {
+        alert(result);
+        this.refreshList();
+      },
+      error: (error) => {
+        alert("Nie udało się zaktualizować kategorii");
+        console.error("Update error:", error);
+      }
+    });
   }
 
   deleteClick(id) {
     if (window.confirm("Czy na pewno?")) {
-      fetch(API_URL + "Category/" + id, {
+      $.ajax({
+        url: API_URL + "Category/" + id,
         method: "DELETE",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
+        contentType: "application/json",
+        success: (result) => {
+          alert(result);
+          this.refreshList();
         },
-      })
-        .then(res => res.json())
-        .then(
-          (result) => {
-            alert(result);
-            this.refreshList();
-          },
-          (error) => {
-            alert("Nie udało się usunąć kategorii");
-            console.error("Delete error:", error);
-          }
-        );
+        error: (error) => {
+          alert("Nie udało się usunąć kategorii");
+          console.error("Delete error:", error);
+        }
+      });
     }
   }
 

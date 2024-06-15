@@ -14,26 +14,17 @@ function App() {
         <nav className="navbar navbar-expand-sm bg-light justify-content-center">
           <ul className="navbar-nav">
             <li className="nav-item mx-3">
-              <NavLink
-                className="btn blue-btn"
-                to="/home"
-              >
+              <NavLink className="btn blue-btn" to="/home">
                 Strona główna
               </NavLink>
             </li>
             <li className="nav-item mx-3">
-              <NavLink
-                className="btn blue-btn"
-                to="/bookcategory"
-              >
+              <NavLink className="btn blue-btn" to="/bookcategory">
                 Kategorie
               </NavLink>
             </li>
             <li className="nav-item mx-3">
-              <NavLink
-                className="btn blue-btn"
-                to="/book"
-              >
+              <NavLink className="btn blue-btn" to="/book">
                 Książki
               </NavLink>
             </li>

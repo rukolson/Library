@@ -1,4 +1,5 @@
 import React, { Component } from "react";
+import $ from "jquery"; // Ensure jQuery is available
 
 const API_URL = "http://localhost:7195/api/";
 const PHOTO_URL = "http://localhost:7195/Photos/";
@@ -13,7 +14,7 @@ export class Book extends Component {
       modalTitle: "",
       BookId: 0,
       BookName: "",
-      Category: "",
+      CategoryName: "",
       DateOfAdding: "",
       CoverPicture: "anonymous.png",
       PhotoPath: PHOTO_URL,
@@ -21,33 +22,29 @@ export class Book extends Component {
   }
 
   refreshList() {
-    fetch(API_URL + "Book")
-      .then(response => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        return response.json();
-      })
-      .then(data => {
+    $.ajax({
+      url: API_URL + "Book",
+      method: "GET",
+      dataType: "json",
+      success: (data) => {
         this.setState({ books: data });
-      })
-      .catch(error => {
-        console.error("There was a problem with the fetch operation:", error);
-      });
+      },
+      error: (error) => {
+        console.error("There was a problem with the AJAX operation:", error);
+      },
+    });
 
-    fetch(API_URL + "Category")
-      .then(response => {
-        if (!response.ok) {
-          throw new Error("Network response was not ok");
-        }
-        return response.json();
-      })
-      .then(data => {
+    $.ajax({
+      url: API_URL + "Category",
+      method: "GET",
+      dataType: "json",
+      success: (data) => {
         this.setState({ categories: data });
-      })
-      .catch(error => {
-        console.error("There was a problem with the fetch operation:", error);
-      });
+      },
+      error: (error) => {
+        console.error("There was a problem with the AJAX operation:", error);
+      },
+    });
   }
 
   componentDidMount() {
@@ -57,9 +54,11 @@ export class Book extends Component {
   changeBookName = (e) => {
     this.setState({ BookName: e.target.value });
   };
-  changeCategory = (e) => {
-    this.setState({ Category: e.target.value });
+
+  changeCategoryName = (e) => {
+    this.setState({ CategoryName: e.target.value });
   };
+
   changeDateOfAdding = (e) => {
     this.setState({ DateOfAdding: e.target.value });
   };
@@ -69,7 +68,7 @@ export class Book extends Component {
       modalTitle: "Dodaj książkę",
       BookId: 0,
       BookName: "",
-      Category: "",
+      CategoryName: "",
       DateOfAdding: "",
       CoverPicture: "anonymous.png",
     });
@@ -80,87 +79,72 @@ export class Book extends Component {
       modalTitle: "Edytuj książkę",
       BookId: emp.BookId,
       BookName: emp.BookName,
-      Category: emp.Category,
+      CategoryName: emp.CategoryName,
       DateOfAdding: emp.DateOfAdding,
       CoverPicture: emp.CoverPicture,
     });
   }
 
   createClick() {
-    fetch(API_URL + "Book", {
+    $.ajax({
+      url: API_URL + "Book",
       method: "POST",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+      contentType: "application/json",
+      data: JSON.stringify({
         BookName: this.state.BookName,
-        Category: this.state.Category,
+        CategoryName: this.state.CategoryName,
         DateOfAdding: this.state.DateOfAdding,
         CoverPicture: this.state.CoverPicture,
       }),
-    })
-      .then(res => res.json())
-      .then(
-        (result) => {
-          alert(result);
-          this.refreshList();
-        },
-        (error) => {
-          alert("Nie udało się stworzyć książki");
-          console.error("Create error:", error);
-        }
-      );
+      success: (result) => {
+        alert(result);
+        this.refreshList();
+      },
+      error: (error) => {
+        alert("Nie udało się stworzyć książki");
+        console.error("Create error:", error);
+      },
+    });
   }
 
   updateClick() {
-    fetch(API_URL + "Book", {
+    $.ajax({
+      url: API_URL + "Book/" + this.state.BookId,
       method: "PUT",
-      headers: {
-        Accept: "application/json",
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
+      contentType: "application/json",
+      data: JSON.stringify({
         BookId: this.state.BookId,
         BookName: this.state.BookName,
-        Category: this.state.Category,
+        CategoryName: this.state.CategoryName,
         DateOfAdding: this.state.DateOfAdding,
         CoverPicture: this.state.CoverPicture,
       }),
-    })
-      .then(res => res.json())
-      .then(
-        (result) => {
-          alert(result);
-          this.refreshList();
-        },
-        (error) => {
-          alert("Nie udało się edytować książki");
-          console.error("Update error:", error);
-        }
-      );
+      success: (result) => {
+        alert(result);
+        this.refreshList();
+      },
+      error: (error) => {
+        alert("Nie udało się edytować książki");
+        console.error("Update error:", error);
+      },
+    });
   }
 
   deleteClick(id) {
     if (window.confirm("Czy na pewno?")) {
-      fetch(API_URL + "Book/" + id, {
+      $.ajax({
+        url: API_URL + "Book/" + id,
         method: "DELETE",
-        headers: {
-          Accept: "application/json",
-          "Content-Type": "application/json",
+        contentType: "application/json",
+        success: (result) => {
+          alert(result);
+          this.refreshList();
         },
-      })
-        .then(res => res.json())
-        .then(
-          (result) => {
-            alert(result);
-            this.refreshList();
-          },
-          (error) => {
-            alert("Nie udało się dodać książki");
-            console.error("Delete error:", error);
-          }
-        );
+        error: (error) => {
+          alert("Nie udało się dodać książki");
+          console.error("Delete error:", error);
+        },
+      });
     }
   }
 
@@ -170,17 +154,19 @@ export class Book extends Component {
     const formData = new FormData();
     formData.append("file", e.target.files[0], e.target.files[0].name);
 
-    fetch(API_URL + "Book/savefile", {
+    $.ajax({
+      url: API_URL + "Book/savefile",
       method: "POST",
-      body: formData,
-    })
-      .then(res => res.json())
-      .then(data => {
+      processData: false,
+      contentType: false,
+      data: formData,
+      success: (data) => {
         this.setState({ CoverPicture: data });
-      })
-      .catch(error => {
+      },
+      error: (error) => {
         console.error("Image upload error:", error);
-      });
+      },
+    });
   };
 
   render() {
@@ -190,7 +176,7 @@ export class Book extends Component {
       modalTitle,
       BookId,
       BookName,
-      Category,
+      CategoryName,
       DateOfAdding,
       PhotoPath,
       CoverPicture,
@@ -222,7 +208,7 @@ export class Book extends Component {
               <tr key={emp.BookId}>
                 <td>{emp.BookId}</td>
                 <td>{emp.BookName}</td>
-                <td>{emp.Category}</td>
+                <td>{emp.CategoryName}</td>
                 <td>{emp.DateOfAdding}</td>
                 <td>
                   <button
@@ -243,7 +229,7 @@ export class Book extends Component {
                       <path d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
                       <path
                         fillRule="evenodd"
-                        d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5v11z"
+                        d="M1 13.5V16h2.5L14.37 5.13l-2-2L1 11.5zm13.854-1.354a.5.5 0 0 0-.708-.708L10.5 14.293l.707.707 3.646-3.647z"
                       />
                     </svg>
                   </button>
@@ -260,7 +246,7 @@ export class Book extends Component {
                       className="bi bi-trash-fill"
                       viewBox="0 0 16 16"
                     >
-                      <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H10a1 1 0 0 0-1-1H7a1 1 0 0 0-1 1H2.5zm3 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 5a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 5zm3 .5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 1 0z" />
+                      <path d="M2.5 1a1 1 0 0 1 1-1h9a1 1 0 0 1 1 1V2h3.5a.5.5 0 0 1 0 1h-.5v11a2.5 2.5 0 0 1-2.5 2.5H3A2.5 2.5 0 0 1 .5 14V3H0a.5.5 0 0 1 0-1H2.5V1zM5.5 1.5a.5.5 0 0 0-.5.5V2h6v-.5a.5.5 0 0 0-.5-.5h-5zM4 4a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 4zm0 1.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 5.5zm0 1.5a.5.5 0 0 1 .5-.5h7a.5.5 0 0 1 0 1h-7A.5.5 0 0 1 4 7z" />
                     </svg>
                   </button>
                 </td>
@@ -302,11 +288,11 @@ export class Book extends Component {
                       <span className="input-group-text">Kategoria</span>
                       <select
                         className="form-select"
-                        onChange={this.changeCategory}
-                        value={Category}
+                        onChange={this.changeCategoryName}
+                        value={CategoryName}
                       >
                         {categories.map(dep => (
-                          <option key={dep.CategoryId}>
+                          <option key={dep.CategoryName}>
                             {dep.CategoryName}
                           </option>
                         ))}
