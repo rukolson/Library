@@ -42,18 +42,17 @@ export class BookCategory extends Component {
     this.setState({ CategoryNameFilter: e.target.value }, this.FilterFn);
   };
 
-  refreshList() {
-    $.ajax({
-      url: API_URL + "Category",
-      method: "GET",
-      dataType: "json",
-      success: (data) => {
-        this.setState({ categories: data, categoriesWithoutFilter: data });
-      },
-      error: (error) => {
-        console.error("There was a problem with the AJAX operation:", error);
-      }
-    });
+  async refreshList() {
+    try {
+      const response = await $.ajax({
+        url: API_URL + "Category",
+        method: "GET",
+        dataType: "json",
+      });
+      this.setState({ categories: response, categoriesWithoutFilter: response });
+    } catch (error) {
+      console.error("There was a problem with the AJAX operation:", error);
+    }
   }
 
   componentDidMount() {
@@ -80,60 +79,57 @@ export class BookCategory extends Component {
     });
   }
 
-  createClick() {
-    $.ajax({
-      url: API_URL + "Category",
-      method: "POST",
-      contentType: "application/json",
-      data: JSON.stringify({
-        CategoryName: this.state.CategoryName,
-      }),
-      success: (result) => {
-        alert(result);
-        this.refreshList();
-      },
-      error: (error) => {
-        alert("Nie udało się stworzyć kategorii");
-        console.error("Create error:", error);
-      }
-    });
-  }
-
-  updateClick() {
-    $.ajax({
-      url: API_URL + "Category",
-      method: "PUT",
-      contentType: "application/json",
-      data: JSON.stringify({
-        CategoryId: this.state.CategoryId,
-        CategoryName: this.state.CategoryName,
-      }),
-      success: (result) => {
-        alert(result);
-        this.refreshList();
-      },
-      error: (error) => {
-        alert("Nie udało się zaktualizować kategorii");
-        console.error("Update error:", error);
-      }
-    });
-  }
-
-  deleteClick(id) {
-    if (window.confirm("Czy na pewno?")) {
-      $.ajax({
-        url: API_URL + "Category/" + id,
-        method: "DELETE",
+  async createClick() {
+    try {
+      const result = await $.ajax({
+        url: API_URL + "Category",
+        method: "POST",
         contentType: "application/json",
-        success: (result) => {
-          alert(result);
-          this.refreshList();
-        },
-        error: (error) => {
-          alert("Nie udało się usunąć kategorii");
-          console.error("Delete error:", error);
-        }
+        data: JSON.stringify({
+          CategoryName: this.state.CategoryName,
+        }),
       });
+      alert(result);
+      this.refreshList();
+    } catch (error) {
+      alert("Nie udało się stworzyć kategorii");
+      console.error("Create error:", error);
+    }
+  }
+
+  async updateClick() {
+    try {
+      const result = await $.ajax({
+        url: API_URL + "Category",
+        method: "PUT",
+        contentType: "application/json",
+        data: JSON.stringify({
+          CategoryId: this.state.CategoryId,
+          CategoryName: this.state.CategoryName,
+        }),
+      });
+      alert(result);
+      this.refreshList();
+    } catch (error) {
+      alert("Nie udało się zaktualizować kategorii");
+      console.error("Update error:", error);
+    }
+  }
+
+  async deleteClick(id) {
+    if (window.confirm("Czy na pewno?")) {
+      try {
+        const result = await $.ajax({
+          url: API_URL + "Category/" + id,
+          method: "DELETE",
+          contentType: "application/json",
+        });
+        alert(result);
+        this.refreshList();
+      } catch (error) {
+        alert("Nie udało się usunąć kategorii");
+        console.error("Delete error:", error);
+      }
     }
   }
 

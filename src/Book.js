@@ -22,29 +22,33 @@ export class Book extends Component {
   }
 
   refreshList() {
-    $.ajax({
-      url: API_URL + "Book",
-      method: "GET",
-      dataType: "json",
-      success: (data) => {
-        this.setState({ books: data });
-      },
-      error: (error) => {
-        console.error("There was a problem with the AJAX operation:", error);
-      },
-    });
+    try {
+      $.ajax({
+        url: API_URL + "Book",
+        method: "GET",
+        dataType: "json",
+        success: (data) => {
+          this.setState({ books: data });
+        },
+        error: (error) => {
+          console.error("There was a problem with the AJAX operation:", error);
+        },
+      });
 
-    $.ajax({
-      url: API_URL + "Category",
-      method: "GET",
-      dataType: "json",
-      success: (data) => {
-        this.setState({ categories: data });
-      },
-      error: (error) => {
-        console.error("There was a problem with the AJAX operation:", error);
-      },
-    });
+      $.ajax({
+        url: API_URL + "Category",
+        method: "GET",
+        dataType: "json",
+        success: (data) => {
+          this.setState({ categories: data });
+        },
+        error: (error) => {
+          console.error("There was a problem with the AJAX operation:", error);
+        },
+      });
+    } catch (error) {
+      console.error("Refresh list error:", error);
+    }
   }
 
   componentDidMount() {
@@ -86,65 +90,77 @@ export class Book extends Component {
   }
 
   createClick() {
-    $.ajax({
-      url: API_URL + "Book",
-      method: "POST",
-      contentType: "application/json",
-      data: JSON.stringify({
-        BookName: this.state.BookName,
-        CategoryName: this.state.CategoryName,
-        DateOfAdding: this.state.DateOfAdding,
-        CoverPicture: this.state.CoverPicture,
-      }),
-      success: (result) => {
-        alert(result);
-        this.refreshList();
-      },
-      error: (error) => {
-        alert("Nie udało się stworzyć książki");
-        console.error("Create error:", error);
-      },
-    });
-  }
-
-  updateClick() {
-    $.ajax({
-      url: API_URL + "Book/" + this.state.BookId,
-      method: "PUT",
-      contentType: "application/json",
-      data: JSON.stringify({
-        BookId: this.state.BookId,
-        BookName: this.state.BookName,
-        CategoryName: this.state.CategoryName,
-        DateOfAdding: this.state.DateOfAdding,
-        CoverPicture: this.state.CoverPicture,
-      }),
-      success: (result) => {
-        alert(result);
-        this.refreshList();
-      },
-      error: (error) => {
-        alert("Nie udało się edytować książki");
-        console.error("Update error:", error);
-      },
-    });
-  }
-
-  deleteClick(id) {
-    if (window.confirm("Czy na pewno?")) {
+    try {
       $.ajax({
-        url: API_URL + "Book/" + id,
-        method: "DELETE",
+        url: API_URL + "Book",
+        method: "POST",
         contentType: "application/json",
+        data: JSON.stringify({
+          BookName: this.state.BookName,
+          CategoryName: this.state.CategoryName,
+          DateOfAdding: this.state.DateOfAdding,
+          CoverPicture: this.state.CoverPicture,
+        }),
         success: (result) => {
           alert(result);
           this.refreshList();
         },
         error: (error) => {
-          alert("Nie udało się dodać książki");
-          console.error("Delete error:", error);
+          alert("Nie udało się stworzyć książki");
+          console.error("Create error:", error);
         },
       });
+    } catch (error) {
+      console.error("Create click error:", error);
+    }
+  }
+
+  updateClick() {
+    try {
+      $.ajax({
+        url: API_URL + "Book/" + this.state.BookId,
+        method: "PUT",
+        contentType: "application/json",
+        data: JSON.stringify({
+          BookId: this.state.BookId,
+          BookName: this.state.BookName,
+          CategoryName: this.state.CategoryName,
+          DateOfAdding: this.state.DateOfAdding,
+          CoverPicture: this.state.CoverPicture,
+        }),
+        success: (result) => {
+          alert(result);
+          this.refreshList();
+        },
+        error: (error) => {
+          alert("Nie udało się edytować książki");
+          console.error("Update error:", error);
+        },
+      });
+    } catch (error) {
+      console.error("Update click error:", error);
+    }
+  }
+
+  deleteClick(id) {
+    if (window.confirm("Czy na pewno?")) {
+      try {
+        $.ajax({
+          url: API_URL + "Book/" + id,
+          method: "DELETE",
+          contentType: "application/json",
+          success: (result) => {
+            alert(result);
+            this.refreshList();
+          },
+          error: (error) => {
+            alert("Nie udało się dodać książki");
+            console.error("Delete error:", error);
+          },
+        });
+      } catch (error) {
+        console.error("Delete click error:", error);
+      }
     }
   }
 
@@ -154,19 +170,23 @@ export class Book extends Component {
     const formData = new FormData();
     formData.append("file", e.target.files[0], e.target.files[0].name);
 
-    $.ajax({
-      url: API_URL + "Book/savefile",
-      method: "POST",
-      processData: false,
-      contentType: false,
-      data: formData,
-      success: (data) => {
-        this.setState({ CoverPicture: data });
-      },
-      error: (error) => {
-        console.error("Image upload error:", error);
-      },
-    });
+    try {
+      $.ajax({
+        url: API_URL + "Book/savefile",
+        method: "POST",
+        processData: false,
+        contentType: false,
+        data: formData,
+        success: (data) => {
+          this.setState({ CoverPicture: data });
+        },
+        error: (error) => {
+          console.error("Image upload error:", error);
+        },
+      });
+    } catch (error) {
+      console.error("Image upload click error:", error);
+    }
   };
 
   render() {
