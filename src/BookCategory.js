@@ -1,7 +1,9 @@
 import React, { Component } from "react";
-import $ from "jquery"; // Include jQuery
+import $ from "jquery";
+import { ToastContainer, toast } from "react-toastify";
+import 'react-toastify/dist/ReactToastify.css';
 
-const API_URL = "https://localhost:7195/api/Book";
+const API_URL = "https://localhost:7195/api/BookCategory/";
 
 export class BookCategory extends Component {
   constructor(props) {
@@ -45,7 +47,7 @@ export class BookCategory extends Component {
   async refreshList() {
     try {
       const response = await $.ajax({
-        url: API_URL + "Category",
+        url: API_URL,
         method: "GET",
         dataType: "json",
       });
@@ -82,17 +84,17 @@ export class BookCategory extends Component {
   async createClick() {
     try {
       const result = await $.ajax({
-        url: API_URL + "Category",
+        url: API_URL,
         method: "POST",
         contentType: "application/json",
         data: JSON.stringify({
           CategoryName: this.state.CategoryName,
         }),
       });
-      alert(result);
+      toast.success("Kategoria została pomyślnie dodana");
       this.refreshList();
     } catch (error) {
-      alert("Nie udało się stworzyć kategorii");
+      toast.error("Nie udało się stworzyć kategorii");
       console.error("Create error:", error);
     }
   }
@@ -100,7 +102,7 @@ export class BookCategory extends Component {
   async updateClick() {
     try {
       const result = await $.ajax({
-        url: API_URL + "Category",
+        url: API_URL + this.state.CategoryId,
         method: "PUT",
         contentType: "application/json",
         data: JSON.stringify({
@@ -108,10 +110,10 @@ export class BookCategory extends Component {
           CategoryName: this.state.CategoryName,
         }),
       });
-      alert(result);
+      toast.success("Kategoria została pomyślnie zaktualizowana");
       this.refreshList();
     } catch (error) {
-      alert("Nie udało się zaktualizować kategorii");
+      toast.error("Nie udało się zaktualizować kategorii");
       console.error("Update error:", error);
     }
   }
@@ -120,14 +122,14 @@ export class BookCategory extends Component {
     if (window.confirm("Czy na pewno?")) {
       try {
         const result = await $.ajax({
-          url: API_URL + "Category/" + id,
+          url: API_URL + id,
           method: "DELETE",
           contentType: "application/json",
         });
-        alert(result);
+        toast.success("Kategoria została pomyślnie usunięta");
         this.refreshList();
       } catch (error) {
-        alert("Nie udało się usunąć kategorii");
+        toast.error("Nie udało się usunąć kategorii");
         console.error("Delete error:", error);
       }
     }
@@ -138,6 +140,7 @@ export class BookCategory extends Component {
 
     return (
       <div>
+        <ToastContainer />
         <button
           type="button"
           className="btn btn-primary m-2 float-end"
